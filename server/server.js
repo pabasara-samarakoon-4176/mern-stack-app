@@ -20,6 +20,10 @@ const todoSchema = new mongoose.Schema({
 
 const Todo = mongoose.model('Todo', todoSchema)
 
+app.get('/test', async (req, res) => {
+    res.send('test')
+})
+
 app.get('/todos', async (req, res) => {
     const todos = await Todo.find()
     res.json(todos)
