@@ -20,6 +20,27 @@ const todoSchema = new mongoose.Schema({
 
 const Todo = mongoose.model('Todo', todoSchema)
 
+app.get('/todos', async (req, res) => {
+    const todos = await Todo.find()
+    res.json(todos)
+})
+
+app.post('/todos', async (req, res) => {
+    const newTodo = await Todo(req.body)
+    await newTodo.save()
+    res.json(newTodo)
+})
+
+app.put('/todos/:id', async (req, res) => {
+    const updatedTodo = await Todo.findByIdAndUpdate(req.params.id, req.body, {new:true})
+    res.json(updatedTodo)
+})
+
+app.delete('/todos/:id', async (req, res) => {
+    await Todo.deleteByIdAndRemove(req.params.id)
+    res.json({message: 'Todo deleted successfully'})
+})
+
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`)
 })
