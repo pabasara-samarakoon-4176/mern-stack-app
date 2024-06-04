@@ -1,30 +1,44 @@
 version: '3.8'
 
 services:
-  server:
-    build: 
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: server_container_1
-    ports:
-      - "5001:5001"
-    depends_on:
-      - mongodb
-  client:
-    build: 
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: client_container_1
-    ports:
-      - "3000:3000"
-    depends_on:
-      - server
   mongodb:
     image: mongo:latest
     container_name: mongo_server
     ports:
-      - "27018:27018"
+      - "27017:27017"
     volumes:
-      - ./../mydata:/data/db
+      - mongo_data:/data/db
+    networks:
+      - my_network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server_container
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGO_URL=mongodb://mongo_server:27017/mern-stack-app-db
+    depends_on:
+      - mongodb
+    networks:
+      - my_network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client_container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    networks:
+      - my_network
+
 volumes:
-  mydata:
+  mongo_data:
+
+networks:
+  my_network:

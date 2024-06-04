@@ -1,16 +1,19 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const cors = require('cors')
+import express, { json } from 'express'
+import mongoose from 'mongoose'
+import cors from 'cors'
 
 const app = express()
 const PORT = process.env.PORT || 5001
 
 app.use(cors())
-app.use(express.json())
+app.use(json())
 
-mongoose.connect('mongodb://localhost/mern-stack-app-db', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+// const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost/mern-stack-app-db'
+
+mongoose.connect('mongodb://mongo_server:27017/mern-stack-app-db').then(() => {
+    console.log('Connected to MongoDB')
+}).catch(err => {
+    console.error('Error connecting to MongoDB:', err.message)
 })
 
 const todoSchema = new mongoose.Schema({
@@ -25,24 +28,44 @@ app.get('/test', async (req, res) => {
 })
 
 app.get('/todos', async (req, res) => {
-    const todos = await Todo.find()
-    res.json(todos)
+    try {
+        const todos = await Todo.find()
+        res.json(todos)
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 app.post('/todos', async (req, res) => {
-    const newTodo = await Todo(req.body)
-    await newTodo.save()
-    res.json(newTodo)
+    try {
+        const newTodo = await Todo(req.body)
+        await newTodo.save()
+        res.json(newTodo)
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 app.put('/todos/:id', async (req, res) => {
-    const updatedTodo = await Todo.findByIdAndUpdate(req.params.id, req.body, {new:true})
-    res.json(updatedTodo)
+    try {
+        const updatedTodo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
+            new: true
+        })
+        res.json(updatedTodo)
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 app.delete('/todos/:id', async (req, res) => {
-    await Todo.deleteByIdAndRemove(req.params.id)
-    res.json({message: 'Todo deleted successfully'})
+    try {
+        await Todo.deleteByIdAndRemove(req.params.id)
+        res.json({
+            message: 'Todo deleted successfully'
+        })
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 app.listen(PORT, () => {
