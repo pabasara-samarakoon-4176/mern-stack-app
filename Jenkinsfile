@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_COMPOSE = '/usr/local/bin/docker-compose'
+        DOCKER_COMPOSE = '/usr/local/bin/docker-compose' // Adjust this path as necessary for your environment
     }
 
     stages {
@@ -15,15 +15,15 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    sh '${DOCKER_COMPOSE} -f docker-compose.yml build'
+                    sh "${DOCKER_COMPOSE} -f docker-compose.yml build"
                 }
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Run Containers') {
             steps {
                 script {
-                    sh '${DOCKER_COMPOSE} -f docker-compose.yml up -d'
+                    sh "${DOCKER_COMPOSE} -f docker-compose.yml up -d"
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
         stage('Cleanup') {
             steps {
                 script {
-                    sh '${DOCKER_COMPOSE} -f docker-compose.yml up down'
+                    sh "${DOCKER_COMPOSE} -f docker-compose.yml down"
                 }
             }
         }
