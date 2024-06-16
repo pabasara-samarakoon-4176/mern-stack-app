@@ -2,21 +2,36 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'https://github.com/pabasara-samarakoon-4176/mern-stack-app.git'
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+        DOCKER_COMPOSE = '/usr/local/bin/docker-compose'
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: "${REPO_URL}"
+                git 'https://github.com/pabasara-samarakoon-4176/mern-stack-app.git'
             }
         }
 
-        stage('Deploy Containers') {
+        stage('Build Docker Images') {
             steps {
                 script {
-                    sh 'docker-compose up --build'
+                    sh '${DOCKER_COMPOSE} -f docker-compose.yml build'
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    sh '${DOCKER_COMPOSE} -f docker-compose.yml up -d'
+                }
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh '${DOCKER_COMPOSE} -f docker-compose.yml up down'
                 }
             }
         }
@@ -25,8 +40,14 @@ pipeline {
     post {
         always {
             script {
-                sh 'docker-compose logs'
+                sh "${DOCKER_COMPOSE} -f docker-compose.yml down --volumes"
             }
+        }
+        success {
+            echo 'Build and Deployment Successful!'
+        }
+        failure {
+            echo 'Build or Deployment Failed!'
         }
     }
 }
