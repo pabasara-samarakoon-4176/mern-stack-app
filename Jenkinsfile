@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_COMPOSE = '/usr/local/bin/docker-compose' // Adjust this path as necessary for your environment
+        DOCKER_COMPOSE = '/usr/local/bin/docker-compose' 
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Code') {
             steps {
                 git 'https://github.com/pabasara-samarakoon-4176/mern-stack-app.git'
             }
@@ -15,39 +15,20 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    sh "${DOCKER_COMPOSE} -f docker-compose.yml build"
+                    sh 'docker build -t server_image ./server'
+                    sh 'docker build -t client_image ./client'
                 }
             }
         }
 
-        stage('Run Containers') {
+        stage('Deploy with Ansible') {
             steps {
-                script {
-                    sh "${DOCKER_COMPOSE} -f docker-compose.yml up -d"
+                sshagent(['ansible-ssh-key']) {
+                    sh '''
+                    ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
+                    '''
                 }
             }
-        }
-
-        stage('Cleanup') {
-            steps {
-                script {
-                    sh "${DOCKER_COMPOSE} -f docker-compose.yml down"
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            script {
-                sh "${DOCKER_COMPOSE} -f docker-compose.yml down --volumes"
-            }
-        }
-        success {
-            echo 'Build and Deployment Successful!'
-        }
-        failure {
-            echo 'Build or Deployment Failed!'
         }
     }
 }
