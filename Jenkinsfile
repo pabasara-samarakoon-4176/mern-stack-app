@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/pabasara-samarakoon-4176/mern-stack-app.git'
+                git branch: 'main', url: 'https://github.com/pabasara-samarakoon-4176/mern-stack-app.git'
             }
         }
 
